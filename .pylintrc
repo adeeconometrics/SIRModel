@@ -290,7 +290,7 @@ exclude-too-few-public-methods=
 ignored-parents=
 
 # Maximum number of arguments for function / method.
-max-args=5
+max-args=7
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=50
@@ -354,6 +354,7 @@ single-line-class-stmt=no
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
 single-line-if-stmt=no
+max-args=7
 
 
 [IMPORTS]
@@ -438,7 +439,9 @@ disable=raw-checker-failed,
         use-implicit-booleaness-not-comparison-to-zero,
         trailing-whitespace,
         missing-module-docstring,
-        global-statement
+        global-statement,
+        super-init-not-called,
+        too-many-positional-arguments
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

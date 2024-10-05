@@ -17,7 +17,6 @@ app.layout = create_layout()
 model = SIRModel(width=20, height=20, population=1500,
                  infection_rate=0.1, recovery_rate=0.05)
 
-
 @app.callback(
     [Output('sir-scatter', 'figure'),
      Output('population-graph', 'figure')],

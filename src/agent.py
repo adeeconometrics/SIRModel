@@ -1,7 +1,7 @@
-from src.const import HealthState
 from random import random, choice
-
 from mesa import Agent
+
+from src.const import HealthState
 
 
 class SIRAgent(Agent):
