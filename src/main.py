@@ -5,6 +5,8 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from dash import Input, Output, State, Dash
+from dash_bootstrap_components.themes import BOOTSTRAP
+from dash_bootstrap_components import Container, Row, Col
 from dash import dcc, html
 
 import plotly.express as px
@@ -103,32 +105,46 @@ class SIRModel(Model):
         }
 
     
-app = Dash(__name__)
+app = Dash(__name__, external_stylesheets=[BOOTSTRAP])
 
 app.layout = html.Div([
-    html.H1("SIR Epidemic Simulation"),
+    Container([
+        html.H1("SIR Epidemic Simulation", className="text-center mb-4"),
 
-    # Control buttons for adjusting parameters
-    html.Label('Infection Rate:'),
-    dcc.Slider(id='infection-rate', min=0, max=1, step=0.01,
-               value=0.1, marks={i/10: f"{i/10}" for i in range(11)}),
+        # Infection Rate slider
+        Row([
+            Col(html.Label('Infection Rate:'), width=3),
+            Col(dcc.Slider(id='infection-rate', min=0, max=1, step=0.01,
+                    value=0.1, marks={i/10: f"{i/10}" for i in range(11)}), width=9)
+        ], className="mb-3"),
 
-    html.Label('Recovery Rate:'),
-    dcc.Slider(id='recovery-rate', min=0, max=1, step=0.01,
-               value=0.05, marks={i/10: f"{i/10}" for i in range(11)}),
+        # Recovery Rate slider
+        Row([
+            Col(html.Label('Recovery Rate:'), width=3),
+            Col(dcc.Slider(id='recovery-rate', min=0, max=1, step=0.01,
+                    value=0.05, marks={i/10: f"{i/10}" for i in range(11)}), width=9)
+        ], className="mb-3"),
 
-    html.Label('Population:'),
-    dcc.Input(id='population-input', type='number',
-              value=100, min=10, max=500),
+        # Population input
+        Row([
+            Col(html.Label('Population:'), width=3),
+            Col(dcc.Input(id='population-input', type='number',
+                    value=100, min=10, max=500, className="form-control"), width=9)
+        ], className="mb-3"),
 
-    # Real-time scatter plot for agent positions
-    dcc.Graph(id='sir-scatter'),
+        # SIR Scatter plot
+        Row([
+            Col(dcc.Graph(id='sir-scatter'), width=12)
+        ], className="mb-4"),
 
-    # Real-time population graph (S, I, R)
-    dcc.Graph(id='population-graph'),
+        # Population graph
+        Row([
+            Col(dcc.Graph(id='population-graph'), width=12)
+        ]),
 
-    # Interval component to update the simulation
-    dcc.Interval(id='interval-component', interval=500, n_intervals=0)
+        # Interval component to update the simulation
+        dcc.Interval(id='interval-component', interval=1000, n_intervals=0)
+    ])
 ])
 
 model = SIRModel(width=20, height=20, population=1500,
