@@ -23,12 +23,15 @@ class SIRAgent(Agent):
         super().__init__(unique_id, model)
         self.state = initial_state
 
+
     def move(self) -> None:
-        """Move the agent to a random neighboring cell."""
+        """Move the agent to a random neighboring cell, only vertically or horizontally."""
+        # Get neighbors in cardinal directions (N, S, E, W)
         possible_steps = self.model.grid.get_neighborhood(
-            self.pos, moore=True, include_center=False)
+            self.pos, moore=False, include_center=False)
         new_position = self.random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
+
 
     def step(self) -> None:
         """Each agent moves randomly and may infect neighbors if infected."""
@@ -66,7 +69,7 @@ class SIRModel(Model):
             self.schedule.add(agent)
 
         # Track population counts over time
-        self.data_collector = {
+        self.data_collector: dict[str, list[int]] = {
             "SUSCEPTIBLE": [],
             "INFECTED": [],
             "RECOVERED": []
