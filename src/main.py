@@ -24,6 +24,7 @@ class SIRAgent(Agent):
     def __init__(self, unique_id: int, model, initial_state: HealthState) -> None:
         super().__init__(unique_id, model)
         self.state = initial_state
+        self.previous_positions = []
 
 
     def move(self) -> None:
@@ -32,6 +33,13 @@ class SIRAgent(Agent):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos, moore=False, include_center=False)
         new_position = self.random.choice(possible_steps)
+
+        # Update the list of previous positions (maintain up to 3)
+        if len(self.previous_positions) >= 3:
+            self.previous_positions.pop(0)
+        # Save current position before moving
+        self.previous_positions.append(self.pos)
+
         self.model.grid.move_agent(self, new_position)
 
 
@@ -160,7 +168,11 @@ model = SIRModel(width=20, height=20, population=1500,
      Input('population-input', 'value')],
     [State('interval-component', 'n_intervals')]
 )
-def update_graph(n_intervals: int, infection_rate: float, recovery_rate: float, population: int, last_step: int):
+def update_graph(n_intervals: int, 
+                 infection_rate: float, 
+                 recovery_rate: float, 
+                 population: int, 
+                 last_step: int):
     if last_step == 0:
         # Initialize the model with new parameters
         global model
@@ -173,7 +185,7 @@ def update_graph(n_intervals: int, infection_rate: float, recovery_rate: float, 
     positions = np.array([agent.pos for agent in model.schedule.agents])
     states = [agent.state.name for agent in model.schedule.agents]
 
-    # Scatter plot for agent positions
+    # Create scatter plot for agent positions
     scatter_fig = px.scatter(
         x=positions[:, 0], y=positions[:, 1], color=states,
         color_discrete_map={
@@ -183,6 +195,23 @@ def update_graph(n_intervals: int, infection_rate: float, recovery_rate: float, 
         },
         title='Agent Position (SIR)'
     )
+
+    # Add lines for previous positions to animate movement flow
+    for agent in model.schedule.agents:
+        if len(agent.previous_positions) >= 2:
+            # Extract x and y coordinates of the past 3 positions
+            previous_positions = np.array(agent.previous_positions)
+            x_coords = previous_positions[:, 0]
+            y_coords = previous_positions[:, 1]
+
+            # Add a line trace connecting the previous positions
+            scatter_fig.add_trace(go.Scatter(
+                x=x_coords,
+                y=y_coords,
+                mode='lines',
+                line=dict(color='gray', width=2),
+                showlegend=False
+            ))
 
     # Line graph for population counts
     population_counts = model.data_collector
