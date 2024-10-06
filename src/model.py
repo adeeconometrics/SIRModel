@@ -33,21 +33,28 @@ class SIRModel(Model):
             self.schedule.add(agent)
 
         # Track population counts over time
-        self.data_collector: dict[str, int] = {
-            "SUSCEPTIBLE": 0,
-            "INFECTED": 0,
-            "RECOVERED": 0
+        self.data_collector: dict[str, list[int]] = {
+            "SUSCEPTIBLE": [],
+            "INFECTED": [],
+            "RECOVERED": []
         }
 
     def step(self) -> None:
-        """Advance the model by one step and record population data."""
+        """
+        Advance the model by one step and record population data by 
+        counting the number of agents in each state.
+        """
         self.schedule.step()
 
-        # Count the number of agents in each state
+        susceptible = infected = recovered = 0
         for agent in self.schedule.agents:
             if agent.state == HealthState.SUSCEPTIBLE:
-                self.data_collector["SUSCEPTIBLE"] += 1
+                susceptible += 1
             elif agent.state == HealthState.INFECTED:
-                self.data_collector["INFECTED"] += 1
+                infected += 1
             elif agent.state == HealthState.RECOVERED:
-                self.data_collector["RECOVERED"] += 1
+                recovered += 1
+
+        self.data_collector["SUSCEPTIBLE"].append(susceptible)
+        self.data_collector["INFECTED"].append(infected)
+        self.data_collector["RECOVERED"].append(recovered)
